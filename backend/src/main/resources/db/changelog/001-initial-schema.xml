@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="001-create-organizations" author="parctrack">
+        <createTable tableName="organizations">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="002-create-users" author="parctrack">
+        <createTable tableName="users">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="username" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hash" type="varchar(255)"/>
+            <column name="role" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="failed_login_attempts" type="int" defaultValueNumeric="0"/>
+            <column name="locked_until" type="timestamp"/>
+            <column name="magic_link_token" type="varchar(255)"/>
+            <column name="magic_link_expires_at" type="timestamp"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="users"
+            baseColumnNames="organization_id"
+            constraintName="fk_users_organization"
+            referencedTableName="organizations"
+            referencedColumnNames="id"/>
+
+        <createIndex tableName="users" indexName="idx_users_organization">
+            <column name="organization_id"/>
+        </createIndex>
+
+        <createIndex tableName="users" indexName="idx_users_email">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="003-create-equipment" author="parctrack">
+        <createTable tableName="equipment">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serial_number" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cust_asset_id" type="varchar(255)"/>
+            <column name="agreement_status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_cycle" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_service" type="timestamp"/>
+            <column name="next_service" type="date"/>
+            <column name="next_service_override" type="boolean" defaultValueBoolean="false"/>
+            <column name="deleted_at" type="timestamp"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="equipment"
+            baseColumnNames="organization_id"
+            constraintName="fk_equipment_organization"
+            referencedTableName="organizations"
+            referencedColumnNames="id"/>
+
+        <addUniqueConstraint
+            tableName="equipment"
+            columnNames="organization_id,serial_number"
+            constraintName="uk_equipment_org_serial"/>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_organization">
+            <column name="organization_id"/>
+        </createIndex>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_serial">
+            <column name="serial_number"/>
+        </createIndex>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_deleted">
+            <column name="deleted_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="004-create-audit-logs" author="parctrack">
+        <createTable tableName="audit_logs">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="uuid"/>
+            <column name="user_id" type="uuid"/>
+            <column name="action" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resource_type" type="varchar(100)"/>
+            <column name="resource_id" type="uuid"/>
+            <column name="details" type="text"/>
+            <column name="ip_address" type="varchar(45)"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="audit_logs"
+            baseColumnNames="organization_id"
+            constraintName="fk_audit_logs_organization"
+            referencedTableName="organizations"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="audit_logs"
+            baseColumnNames="user_id"
+            constraintName="fk_audit_logs_user"
+            referencedTableName="users"
+            referencedColumnNames="id"/>
+
+        <createIndex tableName="audit_logs" indexName="idx_audit_logs_organization">
+            <column name="organization_id"/>
+        </createIndex>
+
+        <createIndex tableName="audit_logs" indexName="idx_audit_logs_created">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="005-create-refresh-tokens" author="parctrack">
+        <createTable tableName="refresh_tokens">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="expires_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="extended_session" type="boolean" defaultValueBoolean="false"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="refresh_tokens"
+            baseColumnNames="user_id"
+            constraintName="fk_refresh_tokens_user"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"/>
+
+        <createIndex tableName="refresh_tokens" indexName="idx_refresh_tokens_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
