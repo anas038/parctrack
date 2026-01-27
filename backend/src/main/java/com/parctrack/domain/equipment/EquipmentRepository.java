@@ -9,7 +9,6 @@ import java.util.UUID;
 
 public interface EquipmentRepository {
     Equipment save(Equipment equipment);
-    List<Equipment> saveAll(List<Equipment> equipment);
     Optional<Equipment> findById(UUID id);
     Optional<Equipment> findByIdAndOrganizationId(UUID id, UUID organizationId);
     Optional<Equipment> findBySerialNumberAndOrganizationId(String serialNumber, UUID organizationId);

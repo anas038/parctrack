@@ -191,13 +191,14 @@ public class ImportExportService {
     }
 
     private Equipment parseExcelRow(Map<String, Integer> headerMap, Row row, Organization organization, boolean upsertMode) {
-        String serialNumber = getCellStringValue(row, headerMap.get("serial_number"));
-        if (serialNumber == null) {
-            serialNumber = getCellStringValue(row, headerMap.get("serialnumber"));
+        String serialNumberValue = getCellStringValue(row, headerMap.get("serial_number"));
+        if (serialNumberValue == null) {
+            serialNumberValue = getCellStringValue(row, headerMap.get("serialnumber"));
         }
-        if (serialNumber == null || serialNumber.isBlank()) {
+        if (serialNumberValue == null || serialNumberValue.isBlank()) {
             throw new IllegalArgumentException("Serial number is required");
         }
+        final String serialNumber = serialNumberValue;
 
         Optional<Equipment> existingOpt = equipmentRepository.findBySerialNumberAndOrganizationId(serialNumber, organization.getId());
 
