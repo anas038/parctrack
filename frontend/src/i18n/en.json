@@ -1,0 +1,86 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "yes": "Yes",
+    "no": "No",
+    "error": "Error",
+    "success": "Success"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "loginWithMagicLink": "Login with Magic Link",
+    "sendMagicLink": "Send Magic Link",
+    "magicLinkSent": "Check your email for the login link",
+    "invalidCredentials": "Invalid email or password",
+    "accountLocked": "Account is locked. Please try again later."
+  },
+  "nav": {
+    "scanner": "Scanner",
+    "dashboard": "Dashboard",
+    "equipment": "Equipment"
+  },
+  "scanner": {
+    "title": "Equipment Lookup",
+    "scanBarcode": "Scan Barcode",
+    "manualEntry": "Manual Entry",
+    "enterSerial": "Enter serial number or asset ID",
+    "lookup": "Lookup",
+    "equipmentNotFound": "Equipment not found",
+    "markServiced": "Mark as Serviced",
+    "serviced": "Equipment marked as serviced"
+  },
+  "equipment": {
+    "title": "Equipment",
+    "serialNumber": "Serial Number",
+    "assetId": "Asset ID",
+    "agreementStatus": "Agreement Status",
+    "serviceCycle": "Service Cycle",
+    "lastService": "Last Service",
+    "nextService": "Next Service",
+    "status": "Status",
+    "actions": "Actions",
+    "covered": "Covered",
+    "outOfScope": "Out of Scope",
+    "pending": "Pending",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "semesterly": "Semesterly",
+    "annually": "Annually",
+    "bulkDelete": "Delete Selected",
+    "bulkUpdateStatus": "Update Status",
+    "bulkUpdateCycle": "Update Cycle",
+    "importEquipment": "Import Equipment",
+    "exportEquipment": "Export Equipment",
+    "createOnly": "Create only (skip existing)",
+    "upsert": "Update existing records"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalEquipment": "Total Equipment",
+    "upToDate": "Up to Date",
+    "needsAttention": "Needs Attention",
+    "overdue": "Overdue",
+    "compliance": "Compliance",
+    "overdueEquipment": "Overdue Equipment",
+    "warningEquipment": "Warning Equipment"
+  },
+  "status": {
+    "green": "Up to Date",
+    "yellow": "Warning",
+    "red": "Overdue"
+  }
+}

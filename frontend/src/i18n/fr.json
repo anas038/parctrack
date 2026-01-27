@@ -1,0 +1,86 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "yes": "Oui",
+    "no": "Non",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "email": "Courriel",
+    "password": "Mot de passe",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPassword": "Mot de passe oublié?",
+    "loginWithMagicLink": "Connexion par lien magique",
+    "sendMagicLink": "Envoyer le lien magique",
+    "magicLinkSent": "Vérifiez votre courriel pour le lien de connexion",
+    "invalidCredentials": "Courriel ou mot de passe invalide",
+    "accountLocked": "Le compte est verrouillé. Veuillez réessayer plus tard."
+  },
+  "nav": {
+    "scanner": "Scanner",
+    "dashboard": "Tableau de bord",
+    "equipment": "Équipement"
+  },
+  "scanner": {
+    "title": "Recherche d'équipement",
+    "scanBarcode": "Scanner le code-barres",
+    "manualEntry": "Saisie manuelle",
+    "enterSerial": "Entrez le numéro de série ou l'ID d'actif",
+    "lookup": "Rechercher",
+    "equipmentNotFound": "Équipement non trouvé",
+    "markServiced": "Marquer comme entretenu",
+    "serviced": "Équipement marqué comme entretenu"
+  },
+  "equipment": {
+    "title": "Équipement",
+    "serialNumber": "Numéro de série",
+    "assetId": "ID d'actif",
+    "agreementStatus": "Statut de l'entente",
+    "serviceCycle": "Cycle d'entretien",
+    "lastService": "Dernier entretien",
+    "nextService": "Prochain entretien",
+    "status": "Statut",
+    "actions": "Actions",
+    "covered": "Couvert",
+    "outOfScope": "Hors portée",
+    "pending": "En attente",
+    "monthly": "Mensuel",
+    "quarterly": "Trimestriel",
+    "semesterly": "Semestriel",
+    "annually": "Annuel",
+    "bulkDelete": "Supprimer la sélection",
+    "bulkUpdateStatus": "Mettre à jour le statut",
+    "bulkUpdateCycle": "Mettre à jour le cycle",
+    "importEquipment": "Importer l'équipement",
+    "exportEquipment": "Exporter l'équipement",
+    "createOnly": "Créer uniquement (ignorer les existants)",
+    "upsert": "Mettre à jour les enregistrements existants"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "totalEquipment": "Équipement total",
+    "upToDate": "À jour",
+    "needsAttention": "Attention requise",
+    "overdue": "En retard",
+    "compliance": "Conformité",
+    "overdueEquipment": "Équipement en retard",
+    "warningEquipment": "Équipement en avertissement"
+  },
+  "status": {
+    "green": "À jour",
+    "yellow": "Avertissement",
+    "red": "En retard"
+  }
+}
