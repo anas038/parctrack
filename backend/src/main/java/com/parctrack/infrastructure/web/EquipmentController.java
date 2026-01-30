@@ -3,6 +3,7 @@ package com.parctrack.infrastructure.web;
 import com.parctrack.application.dto.equipment.*;
 import com.parctrack.application.equipment.EquipmentService;
 import com.parctrack.domain.equipment.AgreementStatus;
+import com.parctrack.domain.equipment.LifecycleStatus;
 import com.parctrack.domain.equipment.ServiceCycle;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +29,7 @@ public class EquipmentController {
     }
 
     @GetMapping("/lookup")
-    @Operation(summary = "Lookup equipment by serial number or asset ID")
+    @Operation(summary = "Lookup equipment by serial number, asset ID, or QR code")
     public ResponseEntity<EquipmentDto> lookup(@RequestParam String q) {
         return ResponseEntity.ok(equipmentService.lookup(q));
     }
@@ -47,6 +48,10 @@ public class EquipmentController {
             @RequestParam(required = false) LocalDate nextServiceFrom,
             @RequestParam(required = false) LocalDate nextServiceTo,
             @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) UUID customerId,
+            @RequestParam(required = false) UUID siteId,
+            @RequestParam(required = false) UUID equipmentTypeId,
+            @RequestParam(required = false) LifecycleStatus lifecycleStatus,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "serialNumber") String sortBy,
@@ -54,10 +59,33 @@ public class EquipmentController {
 
         EquipmentFilterRequest filter = new EquipmentFilterRequest(
                 agreementStatus, serviceCycle, nextServiceFrom, nextServiceTo,
-                searchQuery, page, size, sortBy, sortDirection
+                searchQuery, customerId, siteId, equipmentTypeId, lifecycleStatus,
+                page, size, sortBy, sortDirection
         );
 
         return ResponseEntity.ok(equipmentService.list(filter));
+    }
+
+    @GetMapping("/orphaned")
+    @Operation(summary = "List orphaned equipment (no site assigned)")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<Page<EquipmentDto>> listOrphaned(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(equipmentService.findOrphanedEquipment(page, size));
+    }
+
+    @GetMapping("/orphaned/count")
+    @Operation(summary = "Count orphaned equipment")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<Long> countOrphaned() {
+        return ResponseEntity.ok(equipmentService.countOrphanedEquipment());
+    }
+
+    @GetMapping("/{id}/history")
+    @Operation(summary = "Get equipment service history")
+    public ResponseEntity<EquipmentHistoryDto> getHistory(@PathVariable UUID id) {
+        return ResponseEntity.ok(equipmentService.getHistory(id));
     }
 
     @PostMapping
@@ -76,9 +104,10 @@ public class EquipmentController {
 
     @PostMapping("/{id}/service")
     @Operation(summary = "Mark equipment as serviced")
-    public ResponseEntity<Void> markServiced(@PathVariable UUID id) {
-        equipmentService.markServiced(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ServiceRecordDto> markServiced(
+            @PathVariable UUID id,
+            @RequestBody(required = false) MarkServicedRequest request) {
+        return ResponseEntity.ok(equipmentService.markServiced(id, request));
     }
 
     @DeleteMapping("/{id}")

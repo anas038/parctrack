@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="010-add-equipment-site-reference" author="parctrack">
+        <addColumn tableName="equipment">
+            <column name="site_id" type="uuid"/>
+        </addColumn>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_site">
+            <column name="site_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="011-add-equipment-type-reference" author="parctrack">
+        <addColumn tableName="equipment">
+            <column name="equipment_type_id" type="uuid"/>
+        </addColumn>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_type">
+            <column name="equipment_type_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="012-add-equipment-lifecycle-status" author="parctrack">
+        <addColumn tableName="equipment">
+            <column name="lifecycle_status" type="varchar(50)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_lifecycle_status">
+            <column name="lifecycle_status"/>
+        </createIndex>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_site_lifecycle">
+            <column name="site_id"/>
+            <column name="lifecycle_status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="013-add-equipment-qr-code" author="parctrack">
+        <addColumn tableName="equipment">
+            <column name="qr_code_value" type="varchar(255)"/>
+        </addColumn>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_qr_code">
+            <column name="qr_code_value"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="014-add-equipment-provisional-fields" author="parctrack">
+        <addColumn tableName="equipment">
+            <column name="is_provisional" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provisional_expires_at" type="timestamp"/>
+        </addColumn>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_provisional">
+            <column name="is_provisional"/>
+            <column name="provisional_expires_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="015-add-equipment-predecessor" author="parctrack">
+        <addColumn tableName="equipment">
+            <column name="predecessor_id" type="uuid"/>
+        </addColumn>
+
+        <addForeignKeyConstraint
+            baseTableName="equipment"
+            baseColumnNames="predecessor_id"
+            constraintName="fk_equipment_predecessor"
+            referencedTableName="equipment"
+            referencedColumnNames="id"/>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_predecessor">
+            <column name="predecessor_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="016-add-equipment-next-service-index" author="parctrack">
+        <createIndex tableName="equipment" indexName="idx_equipment_next_service">
+            <column name="next_service"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="017-add-equipment-cust-asset-id-index" author="parctrack">
+        <createIndex tableName="equipment" indexName="idx_equipment_cust_asset_id">
+            <column name="cust_asset_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

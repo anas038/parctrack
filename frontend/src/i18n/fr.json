@@ -31,7 +31,11 @@
   "nav": {
     "scanner": "Scanner",
     "dashboard": "Tableau de bord",
-    "equipment": "Équipement"
+    "equipment": "Équipement",
+    "admin": "Admin",
+    "customers": "Clients",
+    "sites": "Sites",
+    "equipmentTypes": "Types d'équipement"
   },
   "scanner": {
     "title": "Recherche d'équipement",

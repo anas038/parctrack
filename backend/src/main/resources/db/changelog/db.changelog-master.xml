@@ -6,5 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
     <include file="db/changelog/001-initial-schema.xml"/>
+    <include file="db/changelog/002-hierarchy-tables.xml"/>
+    <include file="db/changelog/003-equipment-enhancements.xml"/>
+    <include file="db/changelog/004-data-migration.xml"/>
 
 </databaseChangeLog>

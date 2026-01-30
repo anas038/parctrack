@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="018-create-default-customers" author="parctrack">
+        <comment>Create a default customer for each organization to migrate existing equipment</comment>
+        <sql>
+            INSERT INTO customers (id, organization_id, name, agreement_status, created_at, updated_at)
+            SELECT
+                gen_random_uuid(),
+                o.id,
+                'Default Customer',
+                'COVERED',
+                NOW(),
+                NOW()
+            FROM organizations o
+            WHERE NOT EXISTS (
+                SELECT 1 FROM customers c WHERE c.organization_id = o.id
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="019-create-default-sites" author="parctrack">
+        <comment>Create a default site for each customer to migrate existing equipment</comment>
+        <sql>
+            INSERT INTO sites (id, customer_id, name, created_at, updated_at)
+            SELECT
+                gen_random_uuid(),
+                c.id,
+                'Default Site',
+                NOW(),
+                NOW()
+            FROM customers c
+            WHERE NOT EXISTS (
+                SELECT 1 FROM sites s WHERE s.customer_id = c.id
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="020-create-default-equipment-types" author="parctrack">
+        <comment>Create a default equipment type for each organization</comment>
+        <sql>
+            INSERT INTO equipment_types (id, organization_id, name, description, display_order, is_active, created_at)
+            SELECT
+                gen_random_uuid(),
+                o.id,
+                'General',
+                'Default equipment type',
+                0,
+                true,
+                NOW()
+            FROM organizations o
+            WHERE NOT EXISTS (
+                SELECT 1 FROM equipment_types et WHERE et.organization_id = o.id
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="021-migrate-equipment-to-sites" author="parctrack">
+        <comment>Update existing equipment to reference the default site for their organization</comment>
+        <sql>
+            UPDATE equipment e
+            SET site_id = (
+                SELECT s.id
+                FROM sites s
+                JOIN customers c ON s.customer_id = c.id
+                WHERE c.organization_id = e.organization_id
+                LIMIT 1
+            )
+            WHERE e.site_id IS NULL;
+        </sql>
+    </changeSet>
+
+    <changeSet id="022-migrate-equipment-types" author="parctrack">
+        <comment>Update existing equipment to reference the default equipment type for their organization</comment>
+        <sql>
+            UPDATE equipment e
+            SET equipment_type_id = (
+                SELECT et.id
+                FROM equipment_types et
+                WHERE et.organization_id = e.organization_id
+                LIMIT 1
+            )
+            WHERE e.equipment_type_id IS NULL;
+        </sql>
+    </changeSet>
+
+    <changeSet id="023-add-site-foreign-key" author="parctrack">
+        <comment>Add foreign key constraint after data migration</comment>
+        <addForeignKeyConstraint
+            baseTableName="equipment"
+            baseColumnNames="site_id"
+            constraintName="fk_equipment_site"
+            referencedTableName="sites"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="024-add-equipment-type-foreign-key" author="parctrack">
+        <comment>Add foreign key constraint after data migration</comment>
+        <addForeignKeyConstraint
+            baseTableName="equipment"
+            baseColumnNames="equipment_type_id"
+            constraintName="fk_equipment_equipment_type"
+            referencedTableName="equipment_types"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="025-drop-equipment-organization-fk" author="parctrack">
+        <comment>Remove direct organization reference from equipment (now via site->customer->organization)</comment>
+        <dropForeignKeyConstraint
+            baseTableName="equipment"
+            constraintName="fk_equipment_organization"/>
+        <dropIndex tableName="equipment" indexName="idx_equipment_organization"/>
+    </changeSet>
+
+</databaseChangeLog>

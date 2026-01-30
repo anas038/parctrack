@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="006-create-customers" author="parctrack">
+        <createTable tableName="customers">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="agreement_status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contract_end_date" type="date"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+            <column name="deleted_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="customers"
+            baseColumnNames="organization_id"
+            constraintName="fk_customers_organization"
+            referencedTableName="organizations"
+            referencedColumnNames="id"/>
+
+        <createIndex tableName="customers" indexName="idx_customers_organization">
+            <column name="organization_id"/>
+        </createIndex>
+
+        <createIndex tableName="customers" indexName="idx_customers_deleted">
+            <column name="deleted_at"/>
+        </createIndex>
+
+        <createIndex tableName="customers" indexName="idx_customers_agreement_status">
+            <column name="agreement_status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="007-create-sites" author="parctrack">
+        <createTable tableName="sites">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(500)"/>
+            <column name="contact_name" type="varchar(255)"/>
+            <column name="contact_phone" type="varchar(50)"/>
+            <column name="metadata" type="jsonb" defaultValue="'{}'"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+            <column name="deleted_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="sites"
+            baseColumnNames="customer_id"
+            constraintName="fk_sites_customer"
+            referencedTableName="customers"
+            referencedColumnNames="id"/>
+
+        <createIndex tableName="sites" indexName="idx_sites_customer">
+            <column name="customer_id"/>
+        </createIndex>
+
+        <createIndex tableName="sites" indexName="idx_sites_deleted">
+            <column name="deleted_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="008-create-equipment-types" author="parctrack">
+        <createTable tableName="equipment_types">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(500)"/>
+            <column name="display_order" type="int" defaultValueNumeric="0"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="equipment_types"
+            baseColumnNames="organization_id"
+            constraintName="fk_equipment_types_organization"
+            referencedTableName="organizations"
+            referencedColumnNames="id"/>
+
+        <addUniqueConstraint
+            tableName="equipment_types"
+            columnNames="organization_id,name"
+            constraintName="uk_equipment_types_org_name"/>
+
+        <createIndex tableName="equipment_types" indexName="idx_equipment_types_organization">
+            <column name="organization_id"/>
+        </createIndex>
+
+        <createIndex tableName="equipment_types" indexName="idx_equipment_types_display_order">
+            <column name="display_order"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="009-create-service-records" author="parctrack">
+        <createTable tableName="service_records">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="equipment_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serviced_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serviced_by_user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason_code" type="varchar(50)"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="service_records"
+            baseColumnNames="equipment_id"
+            constraintName="fk_service_records_equipment"
+            referencedTableName="equipment"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="service_records"
+            baseColumnNames="serviced_by_user_id"
+            constraintName="fk_service_records_user"
+            referencedTableName="users"
+            referencedColumnNames="id"/>
+
+        <createIndex tableName="service_records" indexName="idx_service_records_equipment">
+            <column name="equipment_id"/>
+        </createIndex>
+
+        <createIndex tableName="service_records" indexName="idx_service_records_serviced_at">
+            <column name="serviced_at"/>
+        </createIndex>
+
+        <createIndex tableName="service_records" indexName="idx_service_records_user">
+            <column name="serviced_by_user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

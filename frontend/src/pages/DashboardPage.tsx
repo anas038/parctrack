@@ -1,26 +1,92 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { api } from '@/lib/api'
-import type { DashboardSummary } from '@/types'
+import type { DashboardSummary, Customer, Site, EquipmentType } from '@/types'
+import { AlertTriangle } from 'lucide-react'
 
 export function DashboardPage() {
   const { t } = useTranslation()
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
   const [loading, setLoading] = useState(true)
+  const [orphanedCount, setOrphanedCount] = useState(0)
+
+  // Filters
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [sites, setSites] = useState<Site[]>([])
+  const [equipmentTypes, setEquipmentTypes] = useState<EquipmentType[]>([])
+  const [selectedCustomer, setSelectedCustomer] = useState<string>('')
+  const [selectedSite, setSelectedSite] = useState<string>('')
+  const [selectedType, setSelectedType] = useState<string>('')
+
+  useEffect(() => {
+    loadFilters()
+    loadSummary()
+    loadOrphanedCount()
+  }, [])
 
   useEffect(() => {
     loadSummary()
-  }, [])
+  }, [selectedCustomer, selectedSite, selectedType])
+
+  useEffect(() => {
+    if (selectedCustomer) {
+      loadSites(selectedCustomer)
+      setSelectedSite('')
+    } else {
+      setSites([])
+      setSelectedSite('')
+    }
+  }, [selectedCustomer])
+
+  const loadFilters = async () => {
+    try {
+      const [customersData, typesData] = await Promise.all([
+        api.get<Customer[]>('/customers/all'),
+        api.get<EquipmentType[]>('/equipment-types/active'),
+      ])
+      setCustomers(customersData)
+      setEquipmentTypes(typesData)
+    } catch (err) {
+      console.error('Failed to load filters', err)
+    }
+  }
+
+  const loadSites = async (customerId: string) => {
+    try {
+      const data = await api.get<Site[]>(`/sites/all?customerId=${customerId}`)
+      setSites(data)
+    } catch (err) {
+      console.error('Failed to load sites', err)
+    }
+  }
 
   const loadSummary = async () => {
     try {
-      const data = await api.get<DashboardSummary>('/dashboard/summary')
+      const params = new URLSearchParams()
+      if (selectedCustomer) params.set('customerId', selectedCustomer)
+      if (selectedSite) params.set('siteId', selectedSite)
+      if (selectedType) params.set('equipmentTypeId', selectedType)
+
+      const url = params.toString() ? `/dashboard/summary?${params}` : '/dashboard/summary'
+      const data = await api.get<DashboardSummary>(url)
       setSummary(data)
     } catch (err) {
       console.error('Failed to load dashboard', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadOrphanedCount = async () => {
+    try {
+      const count = await api.get<number>('/equipment/orphaned/count')
+      setOrphanedCount(count)
+    } catch (err) {
+      console.error('Failed to load orphaned count', err)
     }
   }
 
@@ -39,6 +105,63 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
+
+      {/* Orphaned Equipment Warning */}
+      {orphanedCount > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Orphaned Equipment</AlertTitle>
+          <AlertDescription>
+            {orphanedCount} equipment {orphanedCount === 1 ? 'item has' : 'items have'} no assigned site.{' '}
+            <Link to="/equipment?orphaned=true" className="underline font-medium">
+              View orphaned equipment
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap gap-4">
+            <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Customers" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Customers</SelectItem>
+                {customers.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedSite} onValueChange={setSelectedSite} disabled={!selectedCustomer}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Sites" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Sites</SelectItem>
+                {sites.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Types</SelectItem>
+                {equipmentTypes.map((et) => (
+                  <SelectItem key={et.id} value={et.id}>{et.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>

@@ -1,8 +1,10 @@
 package com.parctrack.application.dto.equipment;
 
 import com.parctrack.domain.equipment.AgreementStatus;
+import com.parctrack.domain.equipment.LifecycleStatus;
 import com.parctrack.domain.equipment.ServiceCycle;
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record EquipmentFilterRequest(
         AgreementStatus agreementStatus,
@@ -10,6 +12,10 @@ public record EquipmentFilterRequest(
         LocalDate nextServiceFrom,
         LocalDate nextServiceTo,
         String searchQuery,
+        UUID customerId,
+        UUID siteId,
+        UUID equipmentTypeId,
+        LifecycleStatus lifecycleStatus,
         int page,
         int size,
         String sortBy,

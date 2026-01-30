@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EquipmentCard } from '@/components/equipment/EquipmentCard'
+import { ReasonCodeModal } from '@/components/equipment/ReasonCodeModal'
 import { useScanner } from '@/hooks/useScanner'
 import { useToast } from '@/components/ui/toast'
 import { api } from '@/lib/api'
-import type { Equipment } from '@/types'
+import type { Equipment, ReasonCode, ServiceRecord, MarkServicedRequest } from '@/types'
 import { QrCode, Keyboard } from 'lucide-react'
 
 export function ScannerPage() {
@@ -19,6 +20,7 @@ export function ScannerPage() {
   const [equipment, setEquipment] = useState<Equipment | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [reasonModalOpen, setReasonModalOpen] = useState(false)
 
   const handleLookup = async (query: string) => {
     if (!query.trim()) return
@@ -44,16 +46,24 @@ export function ScannerPage() {
     },
   })
 
-  const handleMarkServiced = async () => {
+  const handleMarkServiced = async (reasonCode?: ReasonCode) => {
     if (!equipment) return
+
+    // If equipment is RED and no reason code provided, show modal
+    if (equipment.stoplightStatus === 'RED' && !reasonCode) {
+      setReasonModalOpen(true)
+      return
+    }
 
     setLoading(true)
     try {
-      await api.post(`/equipment/${equipment.id}/service`)
+      const request: MarkServicedRequest | undefined = reasonCode ? { reasonCode } : undefined
+      await api.post<ServiceRecord, MarkServicedRequest | undefined>(`/equipment/${equipment.id}/service`, request)
       toast({
         title: t('common.success'),
         description: t('scanner.serviced'),
       })
+      setReasonModalOpen(false)
       handleLookup(equipment.serialNumber)
     } catch (err) {
       toast({
@@ -153,10 +163,17 @@ export function ScannerPage() {
       {equipment && (
         <EquipmentCard
           equipment={equipment}
-          onMarkServiced={handleMarkServiced}
+          onMarkServiced={() => handleMarkServiced()}
           loading={loading}
         />
       )}
+
+      <ReasonCodeModal
+        open={reasonModalOpen}
+        onClose={() => setReasonModalOpen(false)}
+        onConfirm={(reasonCode) => handleMarkServiced(reasonCode)}
+        loading={loading}
+      />
     </div>
   )
 }

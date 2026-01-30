@@ -2,7 +2,13 @@ import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
-import { QrCode, LayoutDashboard, Package, LogOut, Globe } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { QrCode, LayoutDashboard, Package, LogOut, Globe, Settings, Users, MapPin, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Layout() {
@@ -20,9 +26,18 @@ export function Layout() {
     { path: '/equipment', label: t('nav.equipment'), icon: Package, managerOnly: true },
   ]
 
+  const adminNavItems = [
+    { path: '/admin/customers', label: t('nav.customers'), icon: Users },
+    { path: '/admin/sites', label: t('nav.sites'), icon: MapPin },
+    { path: '/admin/equipment-types', label: t('nav.equipmentTypes'), icon: Tag },
+  ]
+
   const visibleNavItems = navItems.filter(
     (item) => !item.managerOnly || user?.role === 'MANAGER' || user?.role === 'ADMIN'
   )
+
+  const isAdmin = user?.role === 'ADMIN'
+  const isAdminPath = location.pathname.startsWith('/admin')
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,6 +59,26 @@ export function Layout() {
                   </Button>
                 </Link>
               ))}
+              {isAdmin && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant={isAdminPath ? 'secondary' : 'ghost'} className="gap-2">
+                      <Settings className="h-4 w-4" />
+                      {t('nav.admin')}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {adminNavItems.map((item) => (
+                      <DropdownMenuItem key={item.path} asChild>
+                        <Link to={item.path} className="flex items-center gap-2 cursor-pointer">
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -78,6 +113,33 @@ export function Layout() {
               </Button>
             </Link>
           ))}
+          {isAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={isAdminPath ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className={cn(
+                    "flex-col h-auto py-2 gap-1",
+                    isAdminPath && "bg-secondary"
+                  )}
+                >
+                  <Settings className="h-5 w-5" />
+                  <span className="text-xs">{t('nav.admin')}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {adminNavItems.map((item) => (
+                  <DropdownMenuItem key={item.path} asChild>
+                    <Link to={item.path} className="flex items-center gap-2 cursor-pointer">
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </nav>
 

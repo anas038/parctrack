@@ -31,7 +31,11 @@
   "nav": {
     "scanner": "Scanner",
     "dashboard": "Dashboard",
-    "equipment": "Equipment"
+    "equipment": "Equipment",
+    "admin": "Admin",
+    "customers": "Customers",
+    "sites": "Sites",
+    "equipmentTypes": "Equipment Types"
   },
   "scanner": {
     "title": "Equipment Lookup",

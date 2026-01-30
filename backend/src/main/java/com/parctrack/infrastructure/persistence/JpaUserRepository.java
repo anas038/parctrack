@@ -15,6 +15,9 @@ public interface JpaUserRepository extends JpaRepository<User, UUID>, UserReposi
     Optional<User> findByEmail(String email);
 
     @Override
+    Optional<User> findByEmailAndOrganizationId(String email, UUID organizationId);
+
+    @Override
     @Query("SELECT u FROM User u WHERE u.magicLinkToken = :token AND u.magicLinkExpiresAt > CURRENT_TIMESTAMP")
     Optional<User> findByMagicLinkToken(String token);
 
